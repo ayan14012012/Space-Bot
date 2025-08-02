@@ -1,0 +1,7 @@
+{
+    "capsule1_motor": false,
+    "capsule1_ultrasonic": false,
+    "capsule2_motor": false,
+    "1_start": true,
+    "1_stop": true
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Environmental Logs | Space Bot</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Space Bot: Environmental Logs</h1>
+  </header>
+
+  <main>
+    <section class="logs">
+      <h2>Download Sensor Logs</h2>
+      <p>The environmental data collected by the Space Bot is stored in the onboard SD card. You can manually retrieve the SD card and upload the logs here.</p>
+      <form action="#" method="post" enctype="multipart/form-data">
+        <label for="logFile">Upload data.csv:</label>
+        <input type="file" id="logFile" name="logFile" accept=".csv">
+        <button type="submit">Upload</button>
+      </form>
+
+      <h3>Instructions:</h3>
+      <ul>
+        <li>Remove SD card from the bot.</li>
+        <li>Insert it into a computer or card reader.</li>
+        <li>Locate <code>data.csv</code> file and upload it here for analysis.</li>
+      </ul>
+    </section>
+
+    <section class="nav-links">
+      <a href="index.html">Back to Dashboard</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Space Bot | Designed by Ayan</p>
+  </footer>
+</body>
+</html>

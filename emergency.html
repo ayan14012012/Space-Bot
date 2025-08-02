@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🚨 Emergency Protocols - Space Bot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    #space {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    header {
+      background-color: rgba(15, 15, 30, 0.9);
+      text-align: center;
+      padding: 20px;
+      border-bottom: 2px solid #00ffcc;
+      backdrop-filter: blur(6px);
+      animation: slideInDown 1s ease;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      color: #00ffcc;
+      text-shadow: 0 0 15px #00ffcc;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: auto;
+      animation: fadeIn 1s ease-in;
+    }
+
+    section {
+      background-color: rgba(26, 26, 61, 0.95);
+      padding: 20px;
+      margin-bottom: 30px;
+      border-left: 6px solid #00ffcc;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    section:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+    }
+
+    h2 {
+      color: #00e6e6;
+      margin-top: 0;
+    }
+
+    .issue {
+      color: #ff4d4d;
+      font-weight: bold;
+    }
+
+    .solution {
+      color: #00ff99;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .nav-links a {
+      color: #00ffcc;
+      text-decoration: none;
+      font-size: 1.1rem;
+      border: 2px solid #00ffcc;
+      padding: 12px 25px;
+      border-radius: 12px;
+      transition: 0.3s ease;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+
+    .nav-links a:hover {
+      background-color: #00ffcc;
+      color: #000;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(15, 15, 30, 0.95);
+      color: #aaa;
+      border-top: 1px solid #00ffcc;
+      backdrop-filter: blur(5px);
+      margin-top: 60px;
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideInDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="space"></canvas>
+
+  <header>
+    <h1>🚨 Emergency Protocols</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>📡 Communication Failure</h2>
+      <p class="issue">Lost communication with base station.</p>
+      <p class="solution">Check antenna alignment, reboot amplifier, or switch to backup ESP radio.</p>
+    </section>
+
+    <section>
+      <h2>🧪 Gas Leak (via MQ8)</h2>
+      <p class="issue">Hydrogen or toxic gases detected at high levels.</p>
+      <p class="solution">Seal airlocks, wear oxygen mask, start air purification system.</p>
+    </section>
+
+    <section>
+      <h2>🌡️ Temperature/Humidity Alert (via DHT11)</h2>
+      <p class="issue">Temperature > 30°C or Humidity > 75%.</p>
+      <p class="solution">Check HVAC system, activate cooling manually, monitor crew vitals.</p>
+    </section>
+
+    <section>
+      <h2>💓 Health Warning (via Pulse Sensor)</h2>
+      <p class="issue">Astronaut pulse abnormal or not detected (NaN).</p>
+      <p class="solution">Reposition sensor, check connections, allow rest and hydration.</p>
+    </section>
+
+    <section>
+      <h2>💧 Sensor Failure (Any)</h2>
+      <p class="issue">DHT11 not updating / Pulse value NaN.</p>
+      <p class="solution">Verify wiring, sensor power, restart capsule microcontroller (Wemos/UNO).</p>
+    </section>
+
+    <div class="nav-links">
+      <a href="index.html">⬅ Back to Dashboard</a>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Space Bot Project | Emergency System Module
+  </footer>
+
+  <script>
+    // Simple star canvas animation
+    const canvas = document.getElementById('space');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars = Array.from({ length: 120 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5 + 0.5,
+      dx: Math.random() * 0.5 - 0.25,
+      dy: Math.random() * 0.5 - 0.25
+    }));
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+        star.x += star.dx;
+        star.y += star.dy;
+        if (star.x < 0 || star.x > canvas.width) star.dx *= -1;
+        if (star.y < 0 || star.y > canvas.height) star.dy *= -1;
+      });
+      requestAnimationFrame(drawStars);
+    }
+    drawStars();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>

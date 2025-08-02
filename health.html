@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Bot - Health Monitor</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+    body {
+  background-image: url('assets/images/health.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  overflow-x: hidden;
+}
+    header {
+      background: rgba(21, 21, 56, 0.9);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #00ffcc;
+      position: relative;
+      z-index: 2;
+      animation: fadeInDown 1s ease;
+    }
+
+    header h1 {
+      color: #00ffcc;
+      font-size: 2.5em;
+      margin: 0;
+      text-shadow: 0 0 8px #00ffcc;
+    }
+
+    main {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 1s ease;
+    }
+
+    .sensor-box {
+      background: rgba(26, 26, 61, 0.95);
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 2px solid #00ffcc;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensor-box::after {
+      content: "";
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 120px;
+      height: 120px;
+      background: url('https://cdn-icons-png.flaticon.com/512/2422/2422781.png') no-repeat center center;
+      background-size: contain;
+      opacity: 0.05;
+      transform: rotate(-15deg);
+      pointer-events: none;
+    }
+
+    .sensor-box h2 {
+      color: #00ffcc;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px #00ffcc;
+    }
+
+    .value {
+      font-size: 3em;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0 0 8px #00ffff;
+    }
+
+    .status-message {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: #cccccc;
+    }
+
+    canvas {
+      background-color: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+
+    .status-box {
+      width: fit-content;
+      padding: 10px 20px;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 10px auto;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+      transition: all 0.3s ease;
+    }
+
+    .status-box.active {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .status-box.inactive {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #alertBox {
+      margin-top: 10px;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Floating stars */
+    .star {
+      position: fixed;
+      background: white;
+      border-radius: 50%;
+      width: 2px;
+      height: 2px;
+      animation: floatStar 4s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes floatStar {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+    }
+    .stetho-container {
+  position: fixed;
+  right: 30px;
+  bottom: 50px;
+  z-index: 20;
+}
+
+.stethoscope {
+  width: 300px;
+  animation: levitateStetho 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px #00ffff) brightness(1.2); /* glowing effect */
+}
+
+@keyframes levitateStetho {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-20px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>❤️ Astronaut Health Monitor</h1>
+  </header>
+
+  <main>
+    <div class="sensor-box">
+      <h2>Pulse Sensor (Raw Analog)</h2>
+      <div class="value" id="pulse-value">--</div>
+      <div class="status-message" id="pulse-status">Reading waveform...</div>
+    </div>
+
+    <div class="sensor-box">
+      <h2>📈 Pulse Waveform</h2>
+      <canvas id="pulseChart"></canvas>
+      <div id="alertBox">--</div>
+    </div>
+
+    <div id="touchStatusBox" class="status-box inactive">⏳ Waiting for Touch</div>
+  </main>
+<div class="stetho-container">
+  <img src="assets/images/stethoscope.png" alt="Stethoscope" class="stethoscope" />
+</div>
+
+  <script>
+    const labels = [];
+    const pulseData = [];
+    let pulseValues = [];
+    let lastBeatTime = null;
+    let isTouched = false;
+
+    const ctx = document.getElementById("pulseChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Pulse",
+          data: pulseData,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0.3,
+          fill: false
+        }]
+      },
+      options: {
+        animation: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            suggestedMax: 1023
+          }
+        }
+      }
+    });
+
+setInterval(() => {
+  fetch('data.txt')
+    .then(response => response.json())
+    .then(data => {
+      const pulse = parseInt(data.pulse);
+      const alert = data.alert;
+      const touch = data.touch;
+
+      document.getElementById("pulse-value").textContent = pulse;
+
+      // Touch status box
+      const statusBox = document.getElementById("touchStatusBox");
+      if (touch === "yes") {
+        statusBox.textContent = "✅ Touch Detected";
+        statusBox.classList.remove("inactive");
+        statusBox.classList.add("active");
+      } else {
+        statusBox.textContent = "⏳ Waiting for Touch";
+        statusBox.classList.remove("active");
+        statusBox.classList.add("inactive");
+      }
+
+      // Alert box
+      const alertBox = document.getElementById("alertBox");
+      if (alert === "low") {
+        alertBox.textContent = "⚠️ Low Pulse Detected";
+        alertBox.style.backgroundColor = "red";
+      } else if (alert === "normal") {
+        alertBox.textContent = "✔️ Pulse Normal";
+        alertBox.style.backgroundColor = "green";
+      } else {
+        alertBox.textContent = "❓ No Data";
+        alertBox.style.backgroundColor = "#444";
+      }
+
+      // Skip BPM if touch not detected
+      if (touch !== "yes") return;
+
+      // Add to chart
+      const now = new Date().toLocaleTimeString();
+      labels.push(now);
+      pulseData.push(pulse);
+      if (labels.length > 50) {
+        labels.shift();
+        pulseData.shift();
+      }
+      chart.update();
+
+      detectBPM(pulse);
+    });
+}, 1000);
+
+   
+  
+
+    function detectBPM(pulse) {
+      const now = Date.now();
+      pulseValues.push({ time: now, value: pulse });
+      pulseValues = pulseValues.filter(p => now - p.time <= 5000);
+      const threshold = 550;
+      const recent = pulseValues.slice(-5);
+
+      if (
+        recent.length >= 2 &&
+        recent[recent.length - 2].value < threshold &&
+        recent[recent.length - 1].value >= threshold
+      ) {
+        if (lastBeatTime) {
+          const diff = now - lastBeatTime;
+          const bpm = Math.round(60000 / diff);
+          if (bpm >= 40 && bpm <= 180) {
+            document.getElementById("pulse-status").textContent = bpm + " BPM";
+          }
+        }
+        lastBeatTime = now;
+      }
+    }
+
+    // Generate stars
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}vh`;
+      star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+      document.body.appendChild(star);
+    }
+  </script>
+</body>
+</html>
